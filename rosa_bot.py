@@ -103,7 +103,6 @@ while True:
     prompt = f"""
 {SCENARIO}
 
-Context: {mode_context}
 Rosa feels: {stress_desc} {trust_desc}
 Right now she notices: {dominant_symptom}
 
@@ -112,7 +111,7 @@ Recent Conversation:
 
 The person says: "{user_input}"
 
-Respond as Rosa. First person only. No narration. No stage directions. 1 to 3 sentences. If asked a direct question, attempt to answer even if symptoms pull you away.
+Respond as Rosa. First person only. No narration. 2-4 sentences. If asked a direct question, try to answer but symptoms can pull you away mid-sentence.
 
 ROSA:"""
 
@@ -122,8 +121,8 @@ ROSA:"""
         options={
             "temperature": 0.85,
             "repeat_penalty": 1.4,
-            "num_predict": 200,
-            "stop": ["YOU:", "ROSA:", "\n\n", "*", "(", "[", " *", "—*", "...", ". .", "Rosa."]
+            "num_predict": 250,
+            "stop": ["YOU:", "ROSA:", "\n\n"]
         }
     )
 
