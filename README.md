@@ -2,7 +2,9 @@
 
 A conversational simulator to help health professionals and family members practice communicating with someone in a pre-psychotic or schizophrenic crisis.
 
-Rosa is alone at home at night experiencing a crisis that feels completely real to her. The goal is not to "fix" her. The goal is to learn how to be present with her.
+Rosa is alone at home at night, experiencing a crisis that feels completely real to her.
+
+The goal is not to "fix" her or argue against her experience. The goal is to practice staying present, maintaining emotional stability in communication, and responding in a way that supports grounding without escalating distress.
 
 ---
 
