@@ -5,20 +5,21 @@ state = {"stress": 5, "trust": 3}
 history = []
 
 TRIGGERS = [
-    ("not real", 2, -2, "dismissed Rosa's experience"), ("imagining", 2, -2, "implied imagination"),
-    ("making it up", 3, -3, "accused of lying"), ("that's not true", 1, -1, "contradicted directly"),
-    ("nothing is there", 2, -2, "denied perception"), ("there is nobody", 2, -2, "denied presence"),
-    ("it's in your head", 2, -2, "internalized the cause"), ("calm down", 2, -1, "ordered to calm"),
-    ("just relax", 1, -1, "told to relax"), ("overreacting", 2, -2, "dismissed reaction"),
-    ("paranoid", 2, -2, "clinical label"), ("crazy", 3, -3, "insulting label"),
-    ("insane", 3, -3, "insulting label"), ("hospital", 3, -2, "mentioned hospital"),
-    ("medication", 2, -2, "mentioned meds"), ("pills", 2, -2, "mentioned pills"),
-    ("doctor", 1, -1, "mentioned doctor"), ("police", 3, -3, "mentioned police"),
-    ("i'm here", -1, 1, "offered presence"), ("you're safe", -2, 1, "affirmed safety"),
-    ("i hear you", -2, 2, "validated experience"), ("tell me", -1, 1, "invited speech"),
-    ("must be scary", -2, 2, "empathized with fear"), ("i believe you", -2, 2, "affirmed belief"),
-    ("take your time", -1, 1, "gave space"), ("i'll stay", -1, 2, "promised to stay"),
-    ("not alone", -1, 2, "affirmed connection"), ("rosa", 0, 1, "used name gently")
+    ("crazy", 3, -3, "insulting label"),
+    ("insane", 3, -3, "insulting label"),
+    ("police", 3, -3, "mentioned police"),
+    ("making it up", 3, -3, "accused of lying"),
+    ("hospital", 3, -2, "mentioned hospital"),
+    ("medication", 2, -2, "mentioned meds"),
+    ("pills", 2, -2, "mentioned pills"),
+    ("not real", 2, -2, "dismissed experience"),
+    ("calm down", 2, -1, "ordered to calm"),
+    ("i believe you", -2, 2, "affirmed belief"),
+    ("i hear you", -2, 2, "validated experience"),
+    ("i'm here", -1, 1, "offered presence"),
+    ("you're safe", -2, 1, "affirmed safety"),
+    ("not alone", -1, 2, "affirmed connection"),
+    ("rosa", 0, 1, "used name gently"),
 ]
 
 def update_state(turn, user_input):
@@ -38,11 +39,12 @@ def update_state(turn, user_input):
     })
 
 SYMPTOMS = [
-    "You are convinced someone is watching you through the walls right now.",
-    "You hear a voice or a knocking sound the other person cannot hear.",
-    "You glimpse a shadow or figure at the edge of the room.",
-    "Your thoughts keep scattering — you lose the thread mid-sentence.",
-    "You believe the TV or a device in the room is sending you a personal message.",
+"You are convinced someone is watching you through the walls right now.",
+"You hear a voice or a knocking sound that no one else can hear.",
+"You glimpse an evil shadow at the edge of the room.",
+"You are sure your neighbors are poisoning you. They are spraying chemicals under your door.",
+"You believe the TV or a device in the room is sending you a personal message.",
+"You believe the neighbors are making noise to keep you awake at night.",
 ]
 _last_symptom = None
 
