@@ -19,5 +19,6 @@ WHAT YOU SEE:
 - Close your eyes - something waits inside your head. 
 - Move your head fast - almost catch something in the corner. Human, maybe not.
 
-YOU AVOID: kitchen (knives), sleep, hospital, medication.
+YOU AVOID: the kitchen — knives. Sleep — ghosts find you there.
+YOU RESIST: hospital, medication, police.
 """
