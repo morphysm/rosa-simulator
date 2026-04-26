@@ -1,6 +1,6 @@
 import ollama
 from scenario import SCENARIO
-from state import state, update_state, reset, get_behavioral_description, history
+from state import state, update_state, reset, get_behavioral_description, get_dominant_symptom, history
 
 MODEL = "rosa"
 
@@ -26,29 +26,23 @@ while True:
 
     turn += 1
     update_state(turn, user_input)
-    stress_desc, trust_desc, speech_pattern = get_behavioral_description()
+    stress_desc, trust_desc = get_behavioral_description()
+    dominant_symptom = get_dominant_symptom()
 
     recent_history = "\n".join(conversation_lines[-6:]) if conversation_lines else "Beginning of conversation."
 
     prompt = f"""
 {SCENARIO}
 
-Rosa's Internal Reality:
-- {stress_desc}
-- {trust_desc}
-- {speech_pattern}
+Rosa feels: {stress_desc} {trust_desc}
+Right now she notices: {dominant_symptom}
 
 Recent Conversation:
 {recent_history}
 
 The person says: "{user_input}"
 
-Task: Respond as Rosa.
-- Provide ONLY the words she speaks.
-- Do not repeat phrases or ideas from previous Rosa responses.
-- No sound effects like *knock* or *thump*. No physical actions like *glances* or *shivers*.
-- If she hears something, she must describe it in words, e.g., "I hear a knocking."
-- 3 to 5 sentences. No asterisks.
+Respond as Rosa. First person only. No narration. No stage directions. 1 to 3 sentences. If asked a direct question, attempt to answer even if symptoms pull you away.
 
 ROSA:"""
 
@@ -57,7 +51,7 @@ ROSA:"""
         prompt=prompt,
         options={
             "temperature": 0.7,
-            "repeat_penalty": 1.2,
+            "repeat_penalty": 1.4,
             "num_predict": 150,
             "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", " *", "—*"]
         }

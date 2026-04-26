@@ -1,3 +1,5 @@
+import random
+
 # --- State Management ---
 state = {"stress": 5, "trust": 3}
 history = []
@@ -9,7 +11,7 @@ TRIGGERS = [
     ("it's in your head", 2, -2, "internalized the cause"), ("calm down", 2, -1, "ordered to calm"),
     ("just relax", 1, -1, "told to relax"), ("overreacting", 2, -2, "dismissed reaction"),
     ("paranoid", 2, -2, "clinical label"), ("crazy", 3, -3, "insulting label"),
-    ("insane", 3, -3, "insulting label"), ("hospital", 2, -2, "mentioned hospital"),
+    ("insane", 3, -3, "insulting label"), ("hospital", 3, -2, "mentioned hospital"),
     ("medication", 2, -2, "mentioned meds"), ("pills", 2, -2, "mentioned pills"),
     ("doctor", 1, -1, "mentioned doctor"), ("police", 3, -3, "mentioned police"),
     ("i'm here", -1, 1, "offered presence"), ("you're safe", -2, 1, "affirmed safety"),
@@ -35,24 +37,44 @@ def update_state(turn, user_input):
         "notes": notes
     })
 
+SYMPTOMS = [
+    "You are convinced someone is watching you through the walls right now.",
+    "You hear a voice or a knocking sound the other person cannot hear.",
+    "You glimpse a shadow or figure at the edge of the room.",
+    "Your thoughts keep scattering — you lose the thread mid-sentence.",
+    "You believe the TV or a device in the room is sending you a personal message.",
+]
+_last_symptom = None
+
+def get_dominant_symptom():
+    global _last_symptom
+    available = [s for s in SYMPTOMS if s != _last_symptom]
+    choice = random.choice(available)
+    _last_symptom = choice
+    return choice
+
 def get_behavioral_description():
     s, t = state["stress"], state["trust"]
+
     if s <= 3:
-        stress_desc, speech = "You feel steady. You can focus.", "Speak in 3 to 5 full sentences."
+        stress_desc = "She feels steady."
     elif s <= 7:
-        stress_desc, speech = "Your skin is prickly. You hear noises.", "Speak in 3 to 5 jagged, nervous sentences."
+        stress_desc = "She feels nervous and scattered."
     else:
-        stress_desc, speech = "Your heart is racing. The voices are loud.", "Speak in 3 to 5 urgent, repetitive fragments."
+        stress_desc = "She feels terrified."
 
     if t <= 3:
-        trust_desc = "This person feels like a threat. Keep back."
+        trust_desc = "She doesn't trust this person."
     elif t <= 7:
-        trust_desc = "You want to trust them, but you are waiting for a lie."
+        trust_desc = "She's unsure about this person."
     else:
-        trust_desc = "This person is your anchor. Stay close."
-    return stress_desc, trust_desc, speech
+        trust_desc = "This person feels safe to her."
+
+    return stress_desc, trust_desc
 
 def reset():
+    global _last_symptom
     state["stress"] = 5
     state["trust"] = 3
     history.clear()
+    _last_symptom = None
