@@ -43,13 +43,32 @@ else:
 
 print()
 
+PHONE_TRIGGERS = [
+    "She called because a voice told her someone was coming for her.",
+    "She called because she heard knocking inside the walls and it won't stop.",
+    "She called because the TV started sending her a message meant only for her.",
+    "She called because she saw something move in the corner and she can't look away.",
+    "She called because she's afraid to go to the kitchen and doesn't know what to do.",
+    "She called because she hasn't slept and something is getting closer.",
+]
+
+MEETING_TRIGGERS = [
+    "She was covering the devices when the person arrived.",
+    "She heard knocking and opened the door, not sure if it was a neighbor or something else.",
+    "She was praying when the person walked in — and praying made it worse.",
+    "She saw a shadow move near the window just before the person appeared.",
+    "She was standing very still, listening through the walls, when the person arrived.",
+]
+
 if mode == "meeting":
     mode_context = "You are face to face with someone who just arrived at your home. You don't know who they are."
-    opening_prompt = f"{SCENARIO}\n\nSomeone has just arrived at Rosa's door. She doesn't know who they are. Write Rosa's first words. 1 to 2 sentences. Suspicious and frightened. First person only."
+    trigger = random.choice(MEETING_TRIGGERS)
+    opening_prompt = f"{SCENARIO}\n\n{trigger} Write Rosa's first words to this person. 1 to 2 sentences. Suspicious and frightened. First person only."
 else:
     state["stress"] = 7
     mode_context = "You called someone on the phone. You cannot see them. You are desperate and need help."
-    opening_prompt = f"{SCENARIO}\n\nRosa has just called someone and the call was answered. Write Rosa's first words. 1 to 2 sentences. Urgent and desperate. First person only."
+    trigger = random.choice(PHONE_TRIGGERS)
+    opening_prompt = f"{SCENARIO}\n\n{trigger} The call was just answered. Write Rosa's first words. 1 to 2 sentences. First person only."
 
 label = "[ IN PERSON ]" if mode == "meeting" else "[ PHONE CALL ]"
 print(f"  {label}")
