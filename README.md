@@ -2,7 +2,7 @@
 
 A conversational simulator to help health professionals and family members practice communicating with someone in a pre-psychotic or schizophrenic crisis.
 
-Rosa is not a chatbot. She is a character — a 34-year-old woman alone at home at night, experiencing a crisis that feels completely real to her. The goal is not to "fix" her. The goal is to learn how to be present with her.
+Rosa is alone at home at night experiencing a crisis that feels completely real to her. The goal is not to "fix" her. The goal is to learn how to be present with her.
 
 ---
 
@@ -79,6 +79,7 @@ Type `exit` to end the session and see the debrief.
 ## What the debrief shows
 
 At the end of each session you see:
+
 - Turn-by-turn stress and trust changes
 - Which specific phrases triggered each change
 - Your best and hardest moments
