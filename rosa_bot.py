@@ -7,7 +7,19 @@ import ollama
 from scenario import SCENARIO
 from state import state, update_state, reset, get_behavioral_description, get_dominant_symptom, history
 
-MODEL = "rosa"
+# USAGE:
+# python rosa_bot.py          -> uses qwen (default, stable)
+# python rosa_bot.py gemma    -> uses gemma2:9b (test)
+
+MODEL_MAP = {
+    "qwen": "rosa",       # Qwen 2.5 7B (current stable)
+    "gemma": "gemma2:9b"  # Gemma2 9B (test)
+}
+
+selected = sys.argv[1] if len(sys.argv) > 1 else "qwen"
+MODEL = MODEL_MAP.get(selected, "rosa")
+
+print(f"\n[Using model: {MODEL}]\n")
 
 reset()
 
