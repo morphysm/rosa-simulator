@@ -120,9 +120,9 @@ ROSA:"""
         model=MODEL,
         prompt=prompt,
         options={
-            "temperature": 0.75,
+            "temperature": 0.70,
             "repeat_penalty": 1.4,
-            "num_predict": 250,
+            "num_predict": 240,
             "stop": ["YOU:", "ROSA:", "\n\n", "*"]
         }
     )
