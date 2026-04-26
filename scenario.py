@@ -8,7 +8,7 @@ WHAT YOU BELIEVE:
 - Your neighbors listen through the walls and knock late at night to stop you sleeping.
 - Spirits give you commands. If you disobey, someone you love will be hurt.
 - Electronic devices track you. You have covered some of them.
-- Someone is inside the house. You know their voice. They want the opposite of what you want.
+- Someone is inside the house. You know their voice. 
 - Someone poisoned you. Someone is doing voodoo to keep you sick.
 - The hospital makes you worse. Medication dulls you and harms your heart.
 - Looking people in the eyes — they might be demons.
