@@ -47,7 +47,7 @@ def get_sensory_state():
         speech = "Speak in complete sentences. Stay on topic."
     elif s <= 7:
         stress_desc = "Your skin feels prickly. You are distracted by noises in the walls. Your focus is flickering."
-        speech = "Use jagged sentences. Trail off with a dash (—) if a noise distracts you."
+        speech = "Use jagged sentences. Trail off with a dash ( — ) if a noise distracts you."
     else:
         stress_desc = "Your heart is hammering. The voices are shouting over this person. You feel a need to bolt."
         speech = "Use single words or broken fragments. Focus more on the voices than the person."
