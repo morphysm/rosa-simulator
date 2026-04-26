@@ -34,39 +34,35 @@ while True:
     # We only show the last 4 exchanges to keep Rosa focused on the "now"
     recent_history = "\n".join(conversation_lines[-4:]) if conversation_lines else "Beginning of conversation."
 
-    # REWRITTEN PROMPT: Sensory focus, no numbers, clear constraints.
+    # REWRITTEN PROMPT: Heavy emphasis on spoken dialogue only
     prompt = f"""
-### ROSA'S INTERNAL STATE
-- How you feel: {stress_desc}
-- How you feel about this person: {trust_desc}
-- Your voice: {speech_pattern}
-
-### CONTEXT
 {SCENARIO}
 
-### RECENT DIALOGUE
+Rosa's Internal Reality:
+- {stress_desc}
+- {trust_desc}
+- {speech_pattern}
+
+Recent Conversation:
 {recent_history}
 
-### THE PERSON SAYS:
-"{user_input}"
+The person says: "{user_input}"
 
-### TASK
-Respond as Rosa using ONLY spoken dialogue.
-- Use 1 to 2 short sentences.
-- Use everyday, simple words.
-- Never use stage directions, asterisks, or parentheses.
-- If you are distracted or scared, let the sentence break off with a dash.
-- Do not break character.
+Task: Respond as Rosa. 
+- Provide ONLY the words she speaks.
+- NO actions, NO descriptions, NO asterisks, and NO parentheticals.
+- Do not describe her voice shaking; make her words reflect it instead.
+- If she is distracted, she might stop mid-sentence with a dash (—).
 
 ROSA:"""
 
-    # Added temperature and stop sequences to ensure cleaner, more dynamic output
+    # CRITICAL CHANGE: Added "*" to the stop list to kill theatrical roleplay mid-sentence
     response = ollama.generate(
         model=MODEL, 
         prompt=prompt,
         options={
-            "temperature": 0.8,
-            "stop": ["YOU:", "ROSA:", "\n", "(", "["]
+            "temperature": 0.7,
+            "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", "—*"]
         }
     )
     
