@@ -27,48 +27,50 @@ while True:
 
     turn += 1
 
-    # Update state based on what the user said, THEN build the prompt
-    # so Rosa's behavior immediately reflects the impact of this message.
     update_state(turn, user_input)
 
     stress_desc, trust_desc, speech_pattern = get_behavioral_description()
 
-    conversation_history = (
-        "\n".join(conversation_lines)
-        if conversation_lines
-        else "(Beginning of conversation.)"
-    )
+    # We only show the last 4 exchanges to keep Rosa focused on the "now"
+    recent_history = "\n".join(conversation_lines[-4:]) if conversation_lines else "Beginning of conversation."
 
-    prompt = f"""You are Rosa. Inhabit her completely.
+    # REWRITTEN PROMPT: Sensory focus, no numbers, clear constraints.
+    prompt = f"""
+### ROSA'S INTERNAL STATE
+- How you feel: {stress_desc}
+- How you feel about this person: {trust_desc}
+- Your voice: {speech_pattern}
 
+### CONTEXT
 {SCENARIO}
 
-ROSA'S CURRENT STATE (Stress: {state["stress"]}/10 — Trust: {state["trust"]}/10):
+### RECENT DIALOGUE
+{recent_history}
 
-How she feels right now:
-{stress_desc}
-
-How she relates to this person right now:
-{trust_desc}
-
-How she speaks right now:
-{speech_pattern}
-
-CONVERSATION SO FAR:
-{conversation_history}
-
-The person says:
+### THE PERSON SAYS:
 "{user_input}"
 
-Respond as Rosa speaking out loud. 1–3 sentences.
-Express everything through spoken words only — no asterisks, no stage directions, no actions in parentheses.
-If she is frightened, show it in what she says. If she trails off, end the sentence mid-thought with a dash.
-Speak the way a real person talks, not a character in a play.
+### TASK
+Respond as Rosa using ONLY spoken dialogue.
+- Use 1 to 2 short sentences.
+- Use everyday, simple words.
+- Never use stage directions, asterisks, or parentheses.
+- If you are distracted or scared, let the sentence break off with a dash.
+- Do not break character.
 
 ROSA:"""
 
-    response = ollama.generate(model=MODEL, prompt=prompt)
-    reply = response["response"].strip()
+    # Added temperature and stop sequences to ensure cleaner, more dynamic output
+    response = ollama.generate(
+        model=MODEL, 
+        prompt=prompt,
+        options={
+            "temperature": 0.8,
+            "stop": ["YOU:", "ROSA:", "\n", "(", "["]
+        }
+    )
+    
+    reply = response["response"].strip().replace('"', '')
 
     print(f"\nROSA: {reply}\n")
 
@@ -93,7 +95,7 @@ else:
     for entry in history:
         s = f"{entry['stress_before']}→{entry['stress_after']}"
         t = f"{entry['trust_before']}→{entry['trust_after']}"
-        notes = "; ".join(entry["notes"]) if entry["notes"] else "no recognized phrases"
+        notes = "; ".join(entry["notes"]) if entry["notes"] else "neutral interaction"
         print(f"  {entry['turn']:<6}{s:<{col_w}}{t:<{col_w}}{notes}")
 
     print()
@@ -113,20 +115,20 @@ else:
     if stress_delta < -2:
         print("  → Rosa's distress SIGNIFICANTLY DECREASED — strong de-escalation.")
     elif stress_delta < 0:
-        print(f"  → Rosa's distress decreased by {abs(stress_delta)} point(s).")
+        print(f"  → Rosa's distress decreased.")
     elif stress_delta == 0:
         print("  → Rosa's distress was unchanged.")
     else:
-        print(f"  → Rosa's distress INCREASED by {stress_delta} point(s) — review what escalated her.")
+        print(f"  → Rosa's distress INCREASED — review what escalated her.")
 
     if trust_delta > 2:
         print("  → Rosa's trust SIGNIFICANTLY INCREASED — she felt safe with you.")
     elif trust_delta > 0:
-        print(f"  → Rosa's trust increased by {trust_delta} point(s) — she began to open up.")
+        print(f"  → Rosa's trust increased.")
     elif trust_delta == 0:
         print("  → Rosa's trust was unchanged.")
     else:
-        print(f"  → Rosa's trust DECREASED by {abs(trust_delta)} point(s) — she felt less safe with you.")
+        print(f"  → Rosa's trust DECREASED — she felt less safe with you.")
 
     print()
 
