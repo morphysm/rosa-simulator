@@ -1,4 +1,5 @@
 import readline
+import random
 import ollama
 from scenario import SCENARIO
 from state import state, update_state, reset, get_behavioral_description, get_dominant_symptom, history
@@ -13,8 +14,40 @@ print("  Practice communicating with someone in crisis.")
 print("  Type 'exit' to end the session.")
 print("=" * 55)
 print()
+print("  [1] In-person meeting")
+print("  [2] Phone call  (Rosa called you)")
+print("  [Enter] Random")
+print()
 
-conversation_lines = []
+mode_choice = input("  Your choice: ").strip()
+
+if mode_choice == "1":
+    mode = "meeting"
+elif mode_choice == "2":
+    mode = "phone"
+else:
+    mode = random.choice(["meeting", "phone"])
+    label = "In-person meeting" if mode == "meeting" else "Phone call"
+    print(f"  → Random: {label}")
+
+print()
+
+if mode == "meeting":
+    mode_context = "You are face to face with someone who just arrived at your home. You don't know who they are."
+    opening_prompt = f"{SCENARIO}\n\nSomeone has just arrived at Rosa's door. She doesn't know who they are. Write Rosa's first words. 1 to 2 sentences. Suspicious and frightened. First person only."
+else:
+    mode_context = "You called someone on the phone. You cannot see them. You are desperate and need help."
+    opening_prompt = f"{SCENARIO}\n\nRosa has just called someone and the call was answered. Write Rosa's first words. 1 to 2 sentences. Urgent and desperate. First person only."
+
+opening_response = ollama.generate(
+    model=MODEL,
+    prompt=opening_prompt,
+    options={"temperature": 0.9, "num_predict": 80, "stop": ["YOU:", "ROSA:", "\n", "*", "("]}
+)
+opening = opening_response["response"].strip().replace('"', '')
+print(f"ROSA: {opening}\n")
+
+conversation_lines = [f"ROSA: {opening}"]
 turn = 0
 
 while True:
@@ -35,6 +68,7 @@ while True:
     prompt = f"""
 {SCENARIO}
 
+Context: {mode_context}
 Rosa feels: {stress_desc} {trust_desc}
 Right now she notices: {dominant_symptom}
 
