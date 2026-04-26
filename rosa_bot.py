@@ -103,6 +103,7 @@ while True:
     prompt = f"""
 {SCENARIO}
 
+Context: {mode_context}
 Rosa feels: {stress_desc} {trust_desc}
 Right now she notices: {dominant_symptom}
 
@@ -122,7 +123,7 @@ ROSA:"""
             "temperature": 0.85,
             "repeat_penalty": 1.4,
             "num_predict": 250,
-            "stop": ["YOU:", "ROSA:", "\n\n"]
+            "stop": ["YOU:", "ROSA:", "\n\n", "*"]
         }
     )
 
