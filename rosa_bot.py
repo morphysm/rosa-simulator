@@ -30,7 +30,6 @@ while True:
 
     recent_history = "\n".join(conversation_lines[-6:]) if conversation_lines else "Beginning of conversation."
 
-    # --- MODIFIED PROMPT FOR LENGTH ---
     prompt = f"""
 {SCENARIO}
 
@@ -46,21 +45,20 @@ The person says: "{user_input}"
 
 Task: Respond as Rosa.
 - Provide ONLY the words she speaks.
-- STRICT RULE: No sound effects like *knock* or *thump*. 
-- STRICT RULE: No physical actions like *glances* or *shivers*.
+- Do not repeat phrases or ideas from previous Rosa responses.
+- No sound effects like *knock* or *thump*. No physical actions like *glances* or *shivers*.
 - If she hears something, she must describe it in words, e.g., "I hear a knocking."
 - 3 to 5 sentences. No asterisks.
 
 ROSA:"""
 
-    # --- MODIFIED OPTIONS FOR LENGTH ---
     response = ollama.generate(
-        model=MODEL, 
+        model=MODEL,
         prompt=prompt,
         options={
             "temperature": 0.8,
+            "repeat_penalty": 1.3,
             "num_predict": 200,
-            # We add the asterisk and common "cheat" characters to the stop list
             "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", " *", "—*"]
         }
     )

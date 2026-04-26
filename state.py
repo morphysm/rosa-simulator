@@ -1,6 +1,3 @@
-import ollama
-from scenario import SCENARIO
-
 # --- State Management ---
 state = {"stress": 5, "trust": 3}
 history = []
@@ -38,7 +35,7 @@ def update_state(turn, user_input):
         "notes": notes
     })
 
-def get_sensory_state():
+def get_behavioral_description():
     s, t = state["stress"], state["trust"]
     if s <= 3:
         stress_desc, speech = "You feel steady. You can focus.", "Speak in 3 to 5 full sentences."
@@ -55,63 +52,7 @@ def get_sensory_state():
         trust_desc = "This person is your anchor. Stay close."
     return stress_desc, trust_desc, speech
 
-# --- Loop ---
-MODEL = "rosa"
-print("=" * 55 + "\n   ROSA SIMULATOR (AUTHENTIC MODE)\n" + "=" * 55 + "\n")
-
-conversation_lines = []
-turn = 0
-
-while True:
-    user_input = input("YOU: ").strip()
-    if not user_input: continue
-    if user_input.lower() == "exit": break
-
-    turn += 1
-    update_state(turn, user_input)
-    stress_msg, trust_msg, speech_msg = get_sensory_state()
-
-    # Fixed prompt for length and no-theatricals
-    prompt = f"""
-{SCENARIO}
-
-ROSA'S STATE:
-- {stress_msg}
-- {trust_msg}
-- {speech_msg}
-
-RECENT HISTORY:
-{" ".join(conversation_lines[-6:])}
-
-INPUT:
-The person says: "{user_input}"
-
-TASK:
-Respond as Rosa. 
-- Use ONLY spoken dialogue. 
-- Length: 3 to 5 sentences.
-- NO asterisks (*), NO stage directions, NO sound effects (like *knock*).
-- If you hear something, say: "I hear a sound," do not type the sound itself.
-
-ROSA:"""
-
-    response = ollama.generate(
-        model=MODEL, 
-        prompt=prompt,
-        options={
-            "temperature": 0.8,
-            "num_predict": 200,
-            "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", " *", "—*"]
-        }
-    )
-    
-    reply = response["response"].strip().replace('"', '')
-    print(f"\nROSA: {reply}\n")
-    
-    conversation_lines.append(f"YOU: {user_input}")
-    conversation_lines.append(f"ROSA: {reply}")
-
-# --- Debrief ---
-print("\n" + "=" * 55 + "\n   SESSION DEBRIEF\n" + "=" * 55)
-for e in history:
-    print(f"Turn {e['turn']}: {e['stress_before']}->{e['stress_after']} Stress | {', '.join(e['notes']) if e['notes'] else 'neutral'}")
+def reset():
+    state["stress"] = 5
+    state["trust"] = 3
+    history.clear()
