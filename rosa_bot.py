@@ -123,7 +123,7 @@ ROSA:"""
             "temperature": 0.85,
             "repeat_penalty": 1.4,
             "num_predict": 200,
-            "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", " *", "—*"]
+            "stop": ["YOU:", "ROSA:", "\n\n", "*", "(", "[", " *", "—*", "...", ". .", "Rosa."]
         }
     )
 
