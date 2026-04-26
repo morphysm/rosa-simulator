@@ -122,7 +122,7 @@ ROSA:"""
         options={
             "temperature": 0.85,
             "repeat_penalty": 1.4,
-            "num_predict": 150,
+            "num_predict": 200,
             "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", " *", "—*"]
         }
     )
