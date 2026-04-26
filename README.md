@@ -4,7 +4,7 @@ A conversational simulator to help health professionals and family members pract
 
 Rosa is alone at home at night, experiencing a crisis that feels completely real to her.
 
-The goal is not to "fix" her or argue against her experience. The goal is to practice staying present, maintaining emotional stability in communication, and responding in a way that supports grounding without escalating distress.
+The goal is to practice staying present, maintaining emotional stability in communication, and responding in a way that supports grounding without escalating distress.
 
 ---
 
