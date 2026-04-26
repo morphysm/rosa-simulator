@@ -9,7 +9,7 @@ reset()
 print("=" * 55)
 print("  ROSA SIMULATOR")
 print("  Practice communicating with someone in crisis.")
-print("  Type 'exit' to end the session and see your debrief.")
+print("  Type 'exit' to end the session.")
 print("=" * 55)
 print()
 
@@ -21,20 +21,16 @@ while True:
 
     if not user_input:
         continue
-
     if user_input.lower() == "exit":
         break
 
     turn += 1
-
     update_state(turn, user_input)
-
     stress_desc, trust_desc, speech_pattern = get_behavioral_description()
 
-    # We only show the last 4 exchanges to keep Rosa focused on the "now"
-    recent_history = "\n".join(conversation_lines[-4:]) if conversation_lines else "Beginning of conversation."
+    recent_history = "\n".join(conversation_lines[-6:]) if conversation_lines else "Beginning of conversation."
 
-    # REWRITTEN PROMPT: Heavy emphasis on spoken dialogue only
+    # --- MODIFIED PROMPT FOR LENGTH ---
     prompt = f"""
 {SCENARIO}
 
@@ -48,31 +44,32 @@ Recent Conversation:
 
 The person says: "{user_input}"
 
-Task: Respond as Rosa. 
-- Provide ONLY the words she speaks.
-- NO actions, NO descriptions, NO asterisks, and NO parentheticals.
-- Do not describe her voice shaking; make her words reflect it instead.
-- If she is distracted, she might stop mid-sentence with a dash (—).
+Task: Respond as Rosa.
+- Give a detailed response of 3 to 5 sentences.
+- Provide ONLY the words she speaks out loud.
+- NO actions, NO descriptions, NO asterisks, NO stage directions.
+- If she is highly stressed, she might repeat herself or ramble about what she hears.
+- Do not describe her voice; let her words show her state.
 
 ROSA:"""
 
-    # CRITICAL CHANGE: Added "*" to the stop list to kill theatrical roleplay mid-sentence
+    # --- MODIFIED OPTIONS FOR LENGTH ---
     response = ollama.generate(
-        model=MODEL, 
+        model=MODEL,
         prompt=prompt,
         options={
             "temperature": 0.7,
-            "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", "—*"]
+            "num_predict": 150,  # Increased token limit for longer responses
+            "stop": ["YOU:", "ROSA:", "\n", "*", "(", "["]
         }
     )
-    
+
     reply = response["response"].strip().replace('"', '')
 
     print(f"\nROSA: {reply}\n")
 
     conversation_lines.append(f"YOU: {user_input}")
     conversation_lines.append(f"ROSA: {reply}")
-
 
 # --- Session Debrief ---
 print()
