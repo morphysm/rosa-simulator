@@ -22,10 +22,17 @@ TRIGGERS = [
     ("not alone", -1, 2, "affirmed connection"), ("rosa", 0, 1, "used name gently")
 ]
 
+def reset():
+    state["stress"] = 5
+    state["trust"] = 3
+    history.clear()
+
 def update_state(turn, user_input):
     text = user_input.lower()
     stress_before, trust_before = state["stress"], state["trust"]
     notes = []
+    
+    # Check for triggers
     for phrase, s_delta, t_delta, desc in TRIGGERS:
         if phrase in text:
             state["stress"] = max(0, min(10, state["stress"] + s_delta))
@@ -33,25 +40,30 @@ def update_state(turn, user_input):
             notes.append(desc)
     
     history.append({
-        "turn": turn, "user_input": user_input,
-        "stress_before": stress_before, "trust_before": trust_before,
-        "stress_after": state["stress"], "trust_after": state["trust"],
+        "turn": turn, 
+        "user_input": user_input,
+        "stress_before": stress_before, 
+        "trust_before": trust_before,
+        "stress_after": state["stress"], 
+        "trust_after": state["trust"],
         "notes": notes
     })
 
 def get_sensory_state():
     s, t = state["stress"], state["trust"]
     
+    # Stress Descriptions
     if s <= 3:
         stress_desc = "Your breathing is steady. You can follow a single thought to the end."
-        speech = "Speak in complete sentences. Stay on topic."
+        speech = "Speak in 3 to 5 full sentences. Stay on topic."
     elif s <= 7:
-        stress_desc = "Your skin feels prickly. You are distracted by noises in the walls. Your focus is flickering."
-        speech = "Use jagged sentences. Trail off with a dash ( — ) if a noise distracts you."
+        stress_desc = "Your skin feels prickly. You are distracted by noises in the walls."
+        speech = "Speak in 3 to 5 jagged sentences. Trail off with a dash (—) if distracted."
     else:
-        stress_desc = "Your heart is hammering. The voices are shouting over this person. You feel a need to bolt."
-        speech = "Use single words or broken fragments. Focus more on the voices than the person."
+        stress_desc = "Your heart is hammering. The voices are shouting over this person."
+        speech = "Use urgent, repetitive sentences. Focus more on the voices than the person."
 
+    # Trust Descriptions
     if t <= 3:
         trust_desc = "Keep your eyes on the exits. This person feels like a threat."
     elif t <= 7:
