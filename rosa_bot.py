@@ -44,7 +44,8 @@ Recent Conversation:
 
 The person says: "{user_input}"
 
-Task: Respond as Rosa.- Provide ONLY the words she speaks.
+Task: Respond as Rosa.
+- Provide ONLY the words she speaks.
 - STRICT RULE: No sound effects like *knock* or *thump*. 
 - STRICT RULE: No physical actions like *glances* or *shivers*.
 - If she hears something, she must describe it in words, e.g., "I hear a knocking."
