@@ -1,5 +1,8 @@
 import readline
 import random
+import sys
+import tty
+import termios
 import ollama
 from scenario import SCENARIO
 from state import state, update_state, reset, get_behavioral_description, get_dominant_symptom, history
@@ -19,7 +22,13 @@ print("  [2] Phone call  (Rosa called you)")
 print("  [Enter] Random")
 print()
 
-mode_choice = input("  Your choice: ").strip()
+fd = sys.stdin.fileno()
+old_settings = termios.tcgetattr(fd)
+try:
+    tty.setraw(fd)
+    mode_choice = sys.stdin.read(1)
+finally:
+    termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 if mode_choice == "1":
     mode = "meeting"
@@ -36,6 +45,7 @@ if mode == "meeting":
     mode_context = "You are face to face with someone who just arrived at your home. You don't know who they are."
     opening_prompt = f"{SCENARIO}\n\nSomeone has just arrived at Rosa's door. She doesn't know who they are. Write Rosa's first words. 1 to 2 sentences. Suspicious and frightened. First person only."
 else:
+    state["stress"] = 7
     mode_context = "You called someone on the phone. You cannot see them. You are desperate and need help."
     opening_prompt = f"{SCENARIO}\n\nRosa has just called someone and the call was answered. Write Rosa's first words. 1 to 2 sentences. Urgent and desperate. First person only."
 
@@ -45,7 +55,11 @@ opening_response = ollama.generate(
     options={"temperature": 0.9, "num_predict": 80, "stop": ["YOU:", "ROSA:", "\n", "*", "("]}
 )
 opening = opening_response["response"].strip().replace('"', '')
-print(f"ROSA: {opening}\n")
+
+label = "[ IN PERSON ]" if mode == "meeting" else "[ PHONE CALL ]"
+print(f"  {label}")
+print("-" * 55)
+print(f"\nROSA: {opening}\n")
 
 conversation_lines = [f"ROSA: {opening}"]
 turn = 0
