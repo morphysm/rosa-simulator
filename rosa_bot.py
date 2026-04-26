@@ -44,23 +44,23 @@ Recent Conversation:
 
 The person says: "{user_input}"
 
-Task: Respond as Rosa.
-- Give a detailed response of 3 to 5 sentences.
-- Provide ONLY the words she speaks out loud.
-- NO actions, NO descriptions, NO asterisks, NO stage directions.
-- If she is highly stressed, she might repeat herself or ramble about what she hears.
-- Do not describe her voice; let her words show her state.
+Task: Respond as Rosa.- Provide ONLY the words she speaks.
+- STRICT RULE: No sound effects like *knock* or *thump*. 
+- STRICT RULE: No physical actions like *glances* or *shivers*.
+- If she hears something, she must describe it in words, e.g., "I hear a knocking."
+- 3 to 5 sentences. No asterisks.
 
 ROSA:"""
 
     # --- MODIFIED OPTIONS FOR LENGTH ---
     response = ollama.generate(
-        model=MODEL,
+        model=MODEL, 
         prompt=prompt,
         options={
-            "temperature": 0.7,
-            "num_predict": 150,  # Increased token limit for longer responses
-            "stop": ["YOU:", "ROSA:", "\n", "*", "(", "["]
+            "temperature": 0.8,
+            "num_predict": 200,
+            # We add the asterisk and common "cheat" characters to the stop list
+            "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", " *", "—*"]
         }
     )
 
