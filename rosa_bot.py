@@ -1,3 +1,4 @@
+import readline
 import ollama
 from scenario import SCENARIO
 from state import state, update_state, reset, get_behavioral_description, get_dominant_symptom, history
@@ -50,7 +51,7 @@ ROSA:"""
         model=MODEL,
         prompt=prompt,
         options={
-            "temperature": 0.7,
+            "temperature": 0.85,
             "repeat_penalty": 1.4,
             "num_predict": 150,
             "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", " *", "—*"]
