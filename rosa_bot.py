@@ -98,7 +98,7 @@ while True:
     stress_desc, trust_desc = get_behavioral_description()
     dominant_symptom = get_dominant_symptom()
 
-    recent_history = "\n".join(conversation_lines[-6:]) if conversation_lines else "Beginning of conversation."
+    recent_history = "\n".join(conversation_lines[-4:]) if conversation_lines else "Beginning of conversation."
 
     prompt = f"""
 {SCENARIO}
@@ -120,9 +120,9 @@ ROSA:"""
         model=MODEL,
         prompt=prompt,
         options={
-            "temperature": 0.80,
+            "temperature": 0.85,
             "repeat_penalty": 1.4,
-            "num_predict": 150,
+            "num_predict": 200,
             "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", " *", "—*"]
         }
     )
