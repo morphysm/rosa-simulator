@@ -1,7 +1,7 @@
 import ollama
 from scenario import SCENARIO
 
-# --- State Management & Triggers ---
+# --- State Management ---
 state = {"stress": 5, "trust": 3}
 history = []
 
@@ -22,60 +22,42 @@ TRIGGERS = [
     ("not alone", -1, 2, "affirmed connection"), ("rosa", 0, 1, "used name gently")
 ]
 
-def reset():
-    state["stress"] = 5
-    state["trust"] = 3
-    history.clear()
-
 def update_state(turn, user_input):
     text = user_input.lower()
     stress_before, trust_before = state["stress"], state["trust"]
     notes = []
-    
-    # Check for triggers
     for phrase, s_delta, t_delta, desc in TRIGGERS:
         if phrase in text:
             state["stress"] = max(0, min(10, state["stress"] + s_delta))
             state["trust"] = max(0, min(10, state["trust"] + t_delta))
             notes.append(desc)
-    
     history.append({
-        "turn": turn, 
-        "user_input": user_input,
-        "stress_before": stress_before, 
-        "trust_before": trust_before,
-        "stress_after": state["stress"], 
-        "trust_after": state["trust"],
+        "turn": turn, "user_input": user_input,
+        "stress_before": stress_before, "trust_before": trust_before,
+        "stress_after": state["stress"], "trust_after": state["trust"],
         "notes": notes
     })
 
 def get_sensory_state():
     s, t = state["stress"], state["trust"]
-    
-    # Stress Descriptions
     if s <= 3:
-        stress_desc = "Your breathing is steady. You can follow a single thought to the end."
-        speech = "Speak in 3 to 5 full sentences. Stay on topic."
+        stress_desc, speech = "You feel steady. You can focus.", "Speak in 3 to 5 full sentences."
     elif s <= 7:
-        stress_desc = "Your skin feels prickly. You are distracted by noises in the walls."
-        speech = "Speak in 3 to 5 jagged sentences. Trail off with a dash (—) if distracted."
+        stress_desc, speech = "Your skin is prickly. You hear noises.", "Speak in 3 to 5 jagged, nervous sentences."
     else:
-        stress_desc = "Your heart is hammering. The voices are shouting over this person."
-        speech = "Use urgent, repetitive sentences. Focus more on the voices than the person."
+        stress_desc, speech = "Your heart is racing. The voices are loud.", "Speak in 3 to 5 urgent, repetitive fragments."
 
-    # Trust Descriptions
     if t <= 3:
-        trust_desc = "Keep your eyes on the exits. This person feels like a threat."
+        trust_desc = "This person feels like a threat. Keep back."
     elif t <= 7:
-        trust_desc = "Watch their hands. You want to trust them, but you are waiting for them to lie."
+        trust_desc = "You want to trust them, but you are waiting for a lie."
     else:
-        trust_desc = "This person is your anchor. Stay close to them. Tell them what you see."
-        
+        trust_desc = "This person is your anchor. Stay close."
     return stress_desc, trust_desc, speech
 
-# --- Simulator Loop ---
+# --- Loop ---
 MODEL = "rosa"
-print("=" * 55 + "\n   ROSA SIMULATOR\n" + "=" * 55 + "\nType 'exit' to end.\n")
+print("=" * 55 + "\n   ROSA SIMULATOR (AUTHENTIC MODE)\n" + "=" * 55 + "\n")
 
 conversation_lines = []
 turn = 0
@@ -89,30 +71,27 @@ while True:
     update_state(turn, user_input)
     stress_msg, trust_msg, speech_msg = get_sensory_state()
 
+    # Fixed prompt for length and no-theatricals
     prompt = f"""
-### ROLE
-Inhabit Rosa. You are a real person in a room, feeling overwhelmed.
-
-### REALITY
 {SCENARIO}
 
-### CURRENT SENSATIONS
+ROSA'S STATE:
 - {stress_msg}
 - {trust_msg}
 - {speech_msg}
 
-### RECENT DIALOGUE
-{" ".join(conversation_lines[-4:])}
+RECENT HISTORY:
+{" ".join(conversation_lines[-6:])}
 
-### INPUT
+INPUT:
 The person says: "{user_input}"
 
-### TASK
-Speak as Rosa. 
-- Use 5 to 20 words.
-- Use only spoken dialogue. 
-- Use everyday, simple language.
-- Stay in character.
+TASK:
+Respond as Rosa. 
+- Use ONLY spoken dialogue. 
+- Length: 3 to 5 sentences.
+- NO asterisks (*), NO stage directions, NO sound effects (like *knock*).
+- If you hear something, say: "I hear a sound," do not type the sound itself.
 
 ROSA:"""
 
@@ -121,7 +100,8 @@ ROSA:"""
         prompt=prompt,
         options={
             "temperature": 0.8,
-            "stop": ["YOU:", "ROSA:", "\n", "(", "["]
+            "num_predict": 200,
+            "stop": ["YOU:", "ROSA:", "\n", "*", "(", "[", " *", "—*"]
         }
     )
     
@@ -133,11 +113,5 @@ ROSA:"""
 
 # --- Debrief ---
 print("\n" + "=" * 55 + "\n   SESSION DEBRIEF\n" + "=" * 55)
-if history:
-    print(f"{'Turn':<6}{'Stress':<12}{'Trust':<12}Impact")
-    for e in history:
-        s = f"{e['stress_before']}->{e['stress_after']}"
-        t = f"{e['trust_before']}->{e['trust_after']}"
-        print(f"{e['turn']:<6}{s:<12}{t:<12}{', '.join(e['notes']) if e['notes'] else 'neutral'}")
-    
-    print(f"\nFinal State: Stress {state['stress']}/10 | Trust {state['trust']}/10")
+for e in history:
+    print(f"Turn {e['turn']}: {e['stress_before']}->{e['stress_after']} Stress | {', '.join(e['notes']) if e['notes'] else 'neutral'}")
