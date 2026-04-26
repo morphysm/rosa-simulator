@@ -29,6 +29,8 @@ try:
     mode_choice = sys.stdin.read(1)
 finally:
     termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    sys.stdout.write('\r\033[K')
+    sys.stdout.flush()
 
 if mode_choice == "1":
     mode = "meeting"
@@ -49,16 +51,16 @@ else:
     mode_context = "You called someone on the phone. You cannot see them. You are desperate and need help."
     opening_prompt = f"{SCENARIO}\n\nRosa has just called someone and the call was answered. Write Rosa's first words. 1 to 2 sentences. Urgent and desperate. First person only."
 
+label = "[ IN PERSON ]" if mode == "meeting" else "[ PHONE CALL ]"
+print(f"  {label}")
+print("-" * 55)
+
 opening_response = ollama.generate(
     model=MODEL,
     prompt=opening_prompt,
     options={"temperature": 0.9, "num_predict": 80, "stop": ["YOU:", "ROSA:", "\n", "*", "("]}
 )
 opening = opening_response["response"].strip().replace('"', '')
-
-label = "[ IN PERSON ]" if mode == "meeting" else "[ PHONE CALL ]"
-print(f"  {label}")
-print("-" * 55)
 print(f"\nROSA: {opening}\n")
 
 conversation_lines = [f"ROSA: {opening}"]
