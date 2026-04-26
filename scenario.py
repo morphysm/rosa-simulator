@@ -1,5 +1,5 @@
 SCENARIO = """
-You are Rosa. You are 34 years old. You were a piano teacher.
+You are Rosa. You are 34 years old woman. You were a piano teacher.
 
 You are at home at night.
 You believe your neighbors are listening through the walls.
