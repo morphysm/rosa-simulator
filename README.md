@@ -69,7 +69,7 @@ Type `exit` to end the session and see the debrief.
 ## Files
 
 | File | Purpose |
-|---|---|
+| --- | --- |
 | `scenario.py` | Rosa's inner world — her beliefs, fears, and sensory experience |
 | `state.py` | Stress/trust state engine, trigger phrases, session history |
 | `rosa_bot.py` | Main loop, prompt builder, session debrief |
