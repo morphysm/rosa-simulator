@@ -58,7 +58,7 @@ print("-" * 55)
 opening_response = ollama.generate(
     model=MODEL,
     prompt=opening_prompt,
-    options={"temperature": 0.9, "num_predict": 80, "stop": ["YOU:", "ROSA:", "\n", "*", "("]}
+    options={"temperature": 0.9, "seed": random.randint(1, 99999), "num_predict": 80, "stop": ["YOU:", "ROSA:", "\n", "*", "("]}
 )
 opening = opening_response["response"].strip().replace('"', '')
 print(f"\nROSA: {opening}\n")
