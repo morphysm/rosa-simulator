@@ -9,7 +9,6 @@ TRIGGERS = [
     ("insane",        3, -3, "insulting label"),
     ("police",        3, -3, "mentioned police"),
     ("making it up",  3, -3, "accused of lying"),
-    ("hospital",      3, -2, "mentioned hospital"),
     ("medication",    2, -2, "mentioned meds"),
     ("pills",         2, -2, "mentioned pills"),
     ("not real",      2, -2, "dismissed experience"),
@@ -37,6 +36,20 @@ def update_state(turn, user_input):
 
     s_change = 0
     t_change = 0
+
+    # Hospital: impact scales with trust
+    if "hospital" in text:
+        t = state["trust"]
+        if t > 7:
+            notes.append("mentioned hospital — she trusted enough to hear it")
+        elif t >= 5:
+            s_change += 2
+            t_change -= 1
+            notes.append("mentioned hospital — fearful but holding")
+        else:
+            s_change += 5
+            t_change -= 3
+            notes.append("mentioned hospital — trauma trigger")
 
     for phrase, s_delta, t_delta, desc in TRIGGERS:
         if phrase in text:
@@ -98,15 +111,27 @@ def get_dominant_symptom():
     return _last_symptom
 
 
-def get_behavioral_description():
+def get_behavioral_description(mode="meeting"):
     s, t = state["stress"], state["trust"]
 
-    if s <= 3:
-        stress_desc = "She feels steady."
-    elif s <= 7:
-        stress_desc = "She feels nervous and scattered."
+    if mode == "meeting":
+        if s <= 3:
+            stress_desc = "She feels steady. She can focus on what is being said."
+        elif s <= 5:
+            stress_desc = "She is hypervigilant. Every sound feels like a threat."
+        elif s <= 7:
+            stress_desc = "She is agitated. Her body is tense, ready to flee or fight."
+        elif s <= 9:
+            stress_desc = "She is on the edge of panic. Her voice is rising. She is barely holding together."
+        else:
+            stress_desc = "She is in full panic — cornered, irrational, nearly aggressive."
     else:
-        stress_desc = "She feels terrified."
+        if s <= 3:
+            stress_desc = "She feels steady."
+        elif s <= 7:
+            stress_desc = "She feels nervous and scattered."
+        else:
+            stress_desc = "She feels terrified."
 
     if t <= 3:
         trust_desc = "She doesn't trust this person."

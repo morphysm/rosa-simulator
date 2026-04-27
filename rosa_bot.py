@@ -112,7 +112,7 @@ while True:
 
     turn += 1
     update_state(turn, user_input)
-    stress_desc, trust_desc = get_behavioral_description()
+    stress_desc, trust_desc = get_behavioral_description(mode)
     dominant_symptom = get_dominant_symptom()
 
     recent_history = "\n".join(conversation_lines[-8:]) if conversation_lines else "Beginning of conversation."
