@@ -15,10 +15,18 @@ TRIGGERS = [
     ("not real", 2, -2, "dismissed experience"),
     ("calm down", 2, -1, "ordered to calm"),
     ("i believe you", -2, 2, "affirmed belief"),
+    ("i believe in you", -1, 1, "expressed belief"),
     ("i hear you", -2, 2, "validated experience"),
+    ("i understand", -1, 1, "showed understanding"),
     ("i'm here", -1, 1, "offered presence"),
+    ("here to help", -1, 1, "offered help"),
     ("you're safe", -2, 1, "affirmed safety"),
     ("not alone", -1, 2, "affirmed connection"),
+    ("stay with me", -1, 2, "asked to stay"),
+    ("i'll stay", -1, 2, "promised to stay"),
+    ("i will stay", -1, 2, "promised to stay"),
+    ("tell me", -1, 1, "invited speech"),
+    ("take your time", -1, 1, "gave space"),
     ("rosa", 0, 1, "used name gently"),
 ]
 
@@ -39,8 +47,8 @@ def update_state(turn, user_input):
     })
 
 SYMPTOMS = [
-"You are convinced something that is not you is inside your body." 
-"You found out that a giant black snake lives inside the walls of your room, making noises as it moves and presses against them."
+"You are convinced something that is not you is inside your body.",
+"You found out that a giant black snake lives inside the walls of your room, making noises as it moves and presses against them.",
 "You are terrified you might lose control and do something terrible.",
 "You hear a voice at a unique frequency that no one else can hear.",
 "You glimpse an evil shadow at the edge of the room.",
