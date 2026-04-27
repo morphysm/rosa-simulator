@@ -3,7 +3,11 @@ import random
 import sys
 import tty
 import termios
+import atexit
 import ollama
+
+MAGENTA = "\033[1;35m"
+RESET  = "\033[0m"
 from scenario import SCENARIO
 from state import state, update_state, reset, get_behavioral_description, get_dominant_symptom, history
 
@@ -36,6 +40,7 @@ print()
 
 fd = sys.stdin.fileno()
 old_settings = termios.tcgetattr(fd)
+atexit.register(termios.tcsetattr, fd, termios.TCSADRAIN, old_settings)
 try:
     tty.setraw(fd)
     mode_choice = sys.stdin.read(1)
@@ -92,7 +97,7 @@ opening_response = ollama.generate(
     options={"temperature": 0.9, "seed": random.randint(1, 99999), "num_predict": 80, "stop": ["YOU:", "ROSA:", "\n", "*", "("]}
 )
 opening = opening_response["response"].strip().replace('"', '')
-print(f"\nROSA: {opening}\n")
+print(f"\n{MAGENTA}ROSA:{RESET} {opening}\n")
 
 conversation_lines = [f"ROSA: {opening}"]
 turn = 0
@@ -132,7 +137,7 @@ ROSA:"""
         model=MODEL,
         prompt=prompt,
         options={
-            "temperature": 0.77,
+            "temperature": 0.5 + (state["stress"] * 0.05),
             "repeat_penalty": 1.2,
             "num_predict": 250,
             "stop": ["YOU:", "ROSA:", "\n\n", "*"]
@@ -141,7 +146,7 @@ ROSA:"""
 
     reply = response["response"].strip().replace('"', '')
 
-    print(f"\nROSA: {reply}\n")
+    print(f"\n{MAGENTA}ROSA:{RESET} {reply}\n")
 
     conversation_lines.append(f"YOU: {user_input}")
     conversation_lines.append(f"ROSA: {reply}")
