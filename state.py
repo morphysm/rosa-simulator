@@ -39,9 +39,10 @@ def update_state(turn, user_input):
     })
 
 SYMPTOMS = [
-"You are convinced something that is not you is inside your body right now."    
-"You’re terrified you might lose control and do something terrible.",
-"You hear a voice or a knocking sound that no one else can hear.",
+"You are convinced something that is not you is inside your body." 
+"You found out that a giant black snake lives inside the walls of your room, making noises as it moves and presses against them."
+"You are terrified you might lose control and do something terrible.",
+"You hear a voice at a unique frequency that no one else can hear.",
 "You glimpse an evil shadow at the edge of the room.",
 "You are sure your neighbors are poisoning you. They are spraying chemicals under your door.",
 "You believe the TV or a device in the room is sending you a personal message.",
