@@ -7,7 +7,7 @@ history = []
 TRIGGERS = [
     ("crazy",         3, -3, "insulting label"),
     ("insane",        3, -3, "insulting label"),
-    ("police",        3, -3, "mentioned police"),
+    ("police",        4, -4, "mentioned police — violent reaction"),
     ("making it up",  3, -3, "accused of lying"),
     ("medication",    2, -2, "mentioned meds"),
     ("pills",         2, -2, "mentioned pills"),
