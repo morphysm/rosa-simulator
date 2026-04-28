@@ -37,15 +37,17 @@ def update_state(turn, user_input):
     s_change = 0
     t_change = 0
 
-    # Hospital: impact scales with trust
+    # Hospital: always costs trust — even high trust can't make it safe
     if "hospital" in text:
         t = state["trust"]
         if t > 7:
-            notes.append("mentioned hospital — she trusted enough to hear it")
+            s_change += 1
+            t_change -= 2
+            notes.append("mentioned hospital — betrayal even at high trust")
         elif t >= 5:
             s_change += 2
-            t_change -= 1
-            notes.append("mentioned hospital — fearful but holding")
+            t_change -= 2
+            notes.append("mentioned hospital — fearful, pulling back")
         else:
             s_change += 5
             t_change -= 3
