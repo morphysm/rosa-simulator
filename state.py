@@ -128,10 +128,14 @@ def get_behavioral_description(mode="meeting"):
     else:
         if s <= 3:
             stress_desc = "She feels steady."
+        elif s <= 5:
+            stress_desc = "She is nervous. Her voice is unsteady."
         elif s <= 7:
-            stress_desc = "She feels nervous and scattered."
+            stress_desc = "She feels nervous and scattered. Hard to follow her thoughts."
+        elif s <= 9:
+            stress_desc = "Her voice is shaking. She is barely holding on. On the verge of hanging up."
         else:
-            stress_desc = "She feels terrified."
+            stress_desc = "She is in full crisis — incoherent, terrified. She may hang up at any moment."
 
     if t <= 3:
         trust_desc = "She doesn't trust this person."
