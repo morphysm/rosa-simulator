@@ -155,7 +155,7 @@ ROSA:"""
         print(f"{MAGENTA}ROSA:{RESET} [call disconnected]\n")
         break
 
-    if mode == "phone" and "police" in user_input.lower():
+    if mode == "phone" and ("police" in user_input.lower() or "jail" in user_input.lower()):
         print(f"{MAGENTA}ROSA:{RESET} [call disconnected]\n")
         break
 
