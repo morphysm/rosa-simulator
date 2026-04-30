@@ -9,7 +9,7 @@ import ollama
 MAGENTA = "\033[1;35m"
 RESET  = "\033[0m"
 from scenario import SCENARIO
-from state import state, update_state, reset, get_behavioral_description, get_dominant_symptom, history
+from state import state, update_state, reset, get_behavioral_description, get_dominant_symptom, history, SYMPTOMS
 
 # USAGE:
 # python rosa_bot.py          -> uses qwen (default, stable)
@@ -115,6 +115,19 @@ while True:
     stress_desc, trust_desc = get_behavioral_description(mode)
     dominant_symptom = get_dominant_symptom()
 
+    second_symptom = random.choice([s for s in SYMPTOMS if s != dominant_symptom])
+
+    if mode == "meeting" and state["stress"] > 7:
+        symptom_line = f"The world fragments: {dominant_symptom}. {second_symptom} is bleeding into everything."
+        turn_temp = 1.2
+        repeat_pen = 1.1
+        top_p = 0.95
+    else:
+        symptom_line = f"Right now she notices: {dominant_symptom}"
+        turn_temp = 0.8 
+        repeat_pen = 1.1
+        top_p = 0.90
+
     recent_history = "\n".join(conversation_lines[-8:]) if conversation_lines else "Beginning of conversation."
 
     prompt = f"""
@@ -122,14 +135,15 @@ while True:
 
 Context: {mode_context}
 Rosa feels: {stress_desc} {trust_desc}
-Right now she notices: {dominant_symptom}
+{symptom_line}
 
 Recent Conversation:
 {recent_history}
 
 The person says: "{user_input}"
 
-Respond as Rosa. First person only. No narration. 2-4 sentences. If asked a direct question, try to answer but symptoms can pull you away mid-sentence.
+Respond as Rosa. Use a mix of long, rambling sentences and short, panicked ones. 
+Aim for 3-6 sentences. First person only. No narration.
 
 ROSA:"""
 
@@ -137,8 +151,9 @@ ROSA:"""
         model=MODEL,
         prompt=prompt,
         options={
-            "temperature": 0.5 + (state["stress"] * 0.05),
-            "repeat_penalty": 1.2,
+            "temperature": turn_temp,
+            "repeat_penalty": repeat_pen,
+            "top_p": top_p,
             "num_predict": 250,
             "stop": ["YOU:", "ROSA:", "\n\n", "*"]
         }

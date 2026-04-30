@@ -122,13 +122,29 @@ def get_behavioral_description(mode="meeting"):
         if s <= 3:
             stress_desc = "She feels steady. She can focus on what is being said."
         elif s <= 5:
-            stress_desc = "She is hypervigilant. Every sound feels like a threat."
+            stress_desc = random.choice([
+                "She is hypervigilant. Every sound feels like a threat.",
+                "She keeps scanning the room. She can't settle.",
+                "She is tracking everything — exits, movements, shadows.",
+            ])
         elif s <= 7:
-            stress_desc = "She is agitated. Her body is tense, ready to flee or fight."
+            stress_desc = random.choice([
+                "She is agitated. Her body is tense, ready to flee or fight.",
+                "She keeps moving — pacing, checking, unable to stay still.",
+                "Her jaw is tight. She is deciding whether to run.",
+            ])
         elif s <= 9:
-            stress_desc = "She is on the edge of panic. Her voice is rising. She is barely holding together."
+            stress_desc = random.choice([
+                "She is on the edge of panic. Her voice is rising. She is barely holding together.",
+                "She is starting to dissociate. Logic is slipping away.",
+                "She is trembling. Pure fear is taking over.",
+            ])
         else:
-            stress_desc = "She is in full panic — cornered, irrational, nearly aggressive."
+            stress_desc = random.choice([
+                "She is trying to get away — pressing against the wall, looking for an exit. Her body has taken over.",
+                "She has gone somewhere else. Words reach her as noise. She is watching something no one else can see.",
+                "She has decided this person wants to harm her. She is ready to fight or run.",
+            ])
     else:
         if s <= 3:
             stress_desc = "She feels steady."
