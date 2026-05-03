@@ -31,7 +31,7 @@ TRIGGERS = [
     ("rosa",              0, 1, "used name gently"),
 ]
 
-def update_state(turn, user_input):
+def update_state(turn, user_input, mode="meeting"):
     text = user_input.lower()
     stress_before, trust_before = state["stress"], state["trust"]
     notes = []
@@ -64,8 +64,13 @@ def update_state(turn, user_input):
             t_change += t_delta
             notes.append(desc)
 
-    # Apply capped changes: ±3 max per turn
-    state["stress"] = max(0, min(10, state["stress"] + max(-3, min(3, s_change))))
+    # In-person: physical presence makes Rosa more vulnerable — stress escalates faster
+    if mode == "meeting" and s_change > 0:
+        s_change = round(s_change * 1.5)
+
+    # Apply capped changes: ±4 in-person, ±3 on phone
+    stress_cap = 4 if mode == "meeting" else 3
+    state["stress"] = max(0, min(10, state["stress"] + max(-stress_cap, min(stress_cap, s_change))))
     state["trust"]  = max(0, min(10, state["trust"]  + max(-3, min(3, t_change))))
 
     # Trust floor: system overload prevents trust from rising

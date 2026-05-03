@@ -4,6 +4,11 @@ import sys
 import tty
 import termios
 import atexit
+import subprocess
+import threading
+import array
+import math
+import time
 import ollama
 
 MAGENTA = "\033[1;35m"
@@ -20,6 +25,134 @@ MODEL_MAP = {
     "gemma": "gemma2:9b"  # Gemma2 9B (test)
 }
 
+PIPER_BIN   = "/home/kadaver/Documents/you-after/venv/bin/piper"
+VOICE_MODEL = "/home/kadaver/Documents/you-after/voice/en_US-amy-medium.onnx"
+VOICE_SPEED = 0.87  # length_scale: lower = faster (0.5 very fast · 1.0 normal · 1.5 slow)
+
+_piper_proc = None
+_aplay_proc = None
+
+def _stop_audio():
+    global _piper_proc, _aplay_proc
+    for p in (_piper_proc, _aplay_proc):
+        if p:
+            try: p.kill()
+            except: pass
+    _piper_proc = _aplay_proc = None
+
+def _gen_ring():
+    """One ring cycle: 1s dual-tone (440+480 Hz) + 2s silence."""
+    buf = array.array('h')
+    for i in range(22050):
+        t = i / 22050
+        v = 0.35 * math.sin(2 * math.pi * 440 * t) + 0.35 * math.sin(2 * math.pi * 480 * t)
+        buf.append(int(v * 32767))
+    buf.extend([0] * (22050 * 2))
+    return buf.tobytes()
+
+def _gen_click():
+    """Short pickup click (~20ms sharp transient)."""
+    buf = array.array('h')
+    n = int(22050 * 0.02)
+    for i in range(n):
+        decay = 1.0 - (i / n) ** 0.5
+        v = decay * (0.9 if i % 2 == 0 else -0.9)
+        buf.append(int(v * 32767))
+    return buf.tobytes()
+
+def _ring_loop(stop_event):
+    ring = _gen_ring()
+    chunk = 22050 // 10 * 2  # 0.1s of bytes
+    proc = subprocess.Popen(
+        ['aplay', '-r', '22050', '-f', 'S16_LE', '-t', 'raw', '-q', '-'],
+        stdin=subprocess.PIPE, stderr=subprocess.DEVNULL
+    )
+    try:
+        pos = 0
+        while not stop_event.is_set():
+            end = pos + chunk
+            if end >= len(ring):
+                proc.stdin.write(ring[pos:])
+                proc.stdin.flush()
+                pos = 0
+            else:
+                proc.stdin.write(ring[pos:end])
+                proc.stdin.flush()
+                pos = end
+    except BrokenPipeError:
+        pass
+    finally:
+        try: proc.kill()
+        except: pass
+        proc.wait()
+
+def _play_click():
+    proc = subprocess.Popen(
+        ['paplay', '/usr/share/sounds/freedesktop/stereo/camera-shutter.oga'],
+        stderr=subprocess.DEVNULL
+    )
+    proc.wait()
+
+def speak(text):
+    def _run():
+        global _piper_proc, _aplay_proc
+        _stop_audio()
+        _piper_proc = subprocess.Popen(
+            [PIPER_BIN, "--model", VOICE_MODEL, "--output-raw"],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+        )
+        _aplay_proc = subprocess.Popen(
+            ["aplay", "-r", "22050", "-f", "S16_LE", "-t", "raw", "-q", "-"],
+            stdin=_piper_proc.stdout, stderr=subprocess.DEVNULL
+        )
+        _piper_proc.stdin.write(text.encode())
+        _piper_proc.stdin.close()
+        _piper_proc.stdout.close()
+        _aplay_proc.wait()
+        _piper_proc = _aplay_proc = None
+    threading.Thread(target=_run, daemon=True).start()
+
+def speak_synced(text):
+    """Generate audio first, then play it and print text as typewriter in sync."""
+    global _piper_proc, _aplay_proc
+    _stop_audio()
+
+    piper = subprocess.Popen(
+        [PIPER_BIN, "--model", VOICE_MODEL, "--output-raw", "--length_scale", str(VOICE_SPEED)],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+    )
+    audio_data, _ = piper.communicate(text.encode())
+
+    if not audio_data:
+        sys.stdout.write(text)
+        sys.stdout.flush()
+        return
+
+    duration = len(audio_data) / (22050 * 2)
+    char_delay = duration / max(len(text), 1)
+
+    _aplay_proc = subprocess.Popen(
+        ["aplay", "-r", "22050", "-f", "S16_LE", "-t", "raw", "-q", "-"],
+        stdin=subprocess.PIPE, stderr=subprocess.DEVNULL
+    )
+
+    def _play():
+        global _aplay_proc
+        _aplay_proc.stdin.write(audio_data)
+        _aplay_proc.stdin.close()
+        _aplay_proc.wait()
+        _aplay_proc = None
+
+    audio_thread = threading.Thread(target=_play, daemon=True)
+    audio_thread.start()
+
+    for char in text:
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(char_delay)
+
+    audio_thread.join()
+
 selected = sys.argv[1] if len(sys.argv) > 1 else "qwen"
 MODEL = MODEL_MAP.get(selected, "rosa")
 
@@ -35,12 +168,14 @@ print("=" * 55)
 print()
 print("  [1] In-person meeting")
 print("  [2] Phone call  (Rosa called you)")
+print("  [CTRL+v] Rosa's voice on/off ")
 print("  [Enter] Random")
 print()
 
 fd = sys.stdin.fileno()
 old_settings = termios.tcgetattr(fd)
 atexit.register(termios.tcsetattr, fd, termios.TCSADRAIN, old_settings)
+atexit.register(_stop_audio)
 try:
     tty.setraw(fd)
     mode_choice = sys.stdin.read(1)
@@ -59,6 +194,10 @@ else:
     print(f"  → Random: {label}")
 
 print()
+
+voice_on = (mode == "phone")
+if mode == "phone":
+    readline.parse_and_bind(r'"\C-v": "\C-a\C-kVOICE_TOGGLE\n"')
 
 PHONE_TRIGGERS = [
     "She called because a voice told her someone was coming for her.",
@@ -91,13 +230,28 @@ label = "[ IN PERSON ]" if mode == "meeting" else "[ PHONE CALL ]"
 print(f"  {label}")
 print("-" * 55)
 
+if mode == "phone":
+    _ring_stop = threading.Event()
+    _ring_thread = threading.Thread(target=_ring_loop, args=(_ring_stop,), daemon=True)
+    _ring_thread.start()
+
 opening_response = ollama.generate(
     model=MODEL,
     prompt=opening_prompt,
     options={"temperature": 0.9, "seed": random.randint(1, 99999), "num_predict": 80, "stop": ["YOU:", "ROSA:", "\n", "*", "("]}
 )
 opening = opening_response["response"].strip().replace('"', '')
-print(f"\n{MAGENTA}ROSA:{RESET} {opening}\n")
+if mode == "phone":
+    _ring_stop.set()
+    _ring_thread.join(timeout=0.3)
+    _play_click()
+    sys.stdout.write(f"\n{MAGENTA}ROSA:{RESET} ")
+    sys.stdout.flush()
+    speak_synced(opening)
+    sys.stdout.write(f"\n{MAGENTA}[voice on]{RESET}\n\n")
+    sys.stdout.flush()
+else:
+    print(f"\n{MAGENTA}ROSA:{RESET} {opening}\n")
 
 conversation_lines = [f"ROSA: {opening}"]
 turn = 0
@@ -110,8 +264,18 @@ while True:
     if user_input.lower() == "exit":
         break
 
+    if user_input == "VOICE_TOGGLE":
+        sys.stdout.write('\033[1A\033[2K\r')
+        sys.stdout.flush()
+        voice_on = not voice_on
+        if not voice_on:
+            _stop_audio()
+        status = "on" if voice_on else "off"
+        print(f"{MAGENTA}[voice {status}]{RESET}\n")
+        continue
+
     turn += 1
-    update_state(turn, user_input)
+    update_state(turn, user_input, mode)
     stress_desc, trust_desc = get_behavioral_description(mode)
     dominant_symptom = get_dominant_symptom()
 
@@ -154,14 +318,21 @@ ROSA:"""
             "temperature": turn_temp,
             "repeat_penalty": repeat_pen,
             "top_p": top_p,
-            "num_predict": 250,
+            "num_predict": 100,
             "stop": ["YOU:", "ROSA:", "\n\n", "*"]
         }
     )
 
     reply = response["response"].strip().replace('"', '')
 
-    print(f"\n{MAGENTA}ROSA:{RESET} {reply}\n")
+    if mode == "phone" and voice_on:
+        sys.stdout.write(f"\n{MAGENTA}ROSA:{RESET} ")
+        sys.stdout.flush()
+        speak_synced(reply)
+        sys.stdout.write("\n\n")
+        sys.stdout.flush()
+    else:
+        print(f"\n{MAGENTA}ROSA:{RESET} {reply}\n")
 
     conversation_lines.append(f"YOU: {user_input}")
     conversation_lines.append(f"ROSA: {reply}")
@@ -176,6 +347,18 @@ ROSA:"""
 
     if mode == "phone" and state["stress"] >= 10 and state["trust"] <= 0:
         print(f"{MAGENTA}ROSA:{RESET} [call disconnected]\n")
+        break
+
+    if mode == "meeting" and "hospital" in user_input.lower() and state["trust"] <= 2:
+        print(f"{MAGENTA}ROSA:{RESET} [Rosa runs]\n")
+        break
+
+    if mode == "meeting" and ("police" in user_input.lower() or "jail" in user_input.lower()):
+        print(f"{MAGENTA}ROSA:{RESET} [Rosa runs]\n")
+        break
+
+    if mode == "meeting" and state["stress"] >= 10 and state["trust"] <= 0:
+        print(f"{MAGENTA}ROSA:{RESET} [Rosa runs]\n")
         break
 
 # --- Session Debrief ---
